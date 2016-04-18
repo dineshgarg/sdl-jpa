@@ -15,8 +15,6 @@
  */
 package com.sdl.odata.example.service;
 
-import com.sdl.odata.example.datasource.InMemoryDataSourceConfiguration;
-import com.sdl.odata.service.ODataServiceConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -28,6 +26,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import com.sdl.odata.example.persistent.entities.PersistentDataSourceConfiguration;
+import com.sdl.odata.example.datasource.DataSourceConfig;
+import com.sdl.odata.service.ODataServiceConfiguration;
+
 /**
  * @author rdevries
  */
@@ -35,7 +37,8 @@ import org.springframework.context.annotation.Import;
 @EnableAutoConfiguration(exclude = {HibernateJpaAutoConfiguration.class, DataSourceAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class })
 @Import({
-        InMemoryDataSourceConfiguration.class,
+        PersistentDataSourceConfiguration.class,
+        DataSourceConfig.class,
         ODataServiceConfiguration.class
 })
 @ComponentScan
