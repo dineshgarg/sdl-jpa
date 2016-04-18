@@ -15,12 +15,23 @@
  */
 package com.sdl.odata.example.datasource;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.ODataSystemException;
+import com.sdl.odata.api.parser.TargetType;
 import com.sdl.odata.api.processor.query.ComparisonCriteria;
 import com.sdl.odata.api.processor.query.Criteria;
 import com.sdl.odata.api.processor.query.CriteriaFilterOperation;
 import com.sdl.odata.api.processor.query.ExpandOperation;
+import com.sdl.odata.api.processor.query.JoinOperation;
 import com.sdl.odata.api.processor.query.LimitOperation;
 import com.sdl.odata.api.processor.query.LiteralCriteriaValue;
 import com.sdl.odata.api.processor.query.OrderByOperation;
@@ -30,15 +41,8 @@ import com.sdl.odata.api.processor.query.SelectByKeyOperation;
 import com.sdl.odata.api.processor.query.SelectOperation;
 import com.sdl.odata.api.processor.query.SelectPropertiesOperation;
 import com.sdl.odata.api.processor.query.SkipOperation;
-import com.sdl.odata.example.Person;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
+import com.sdl.odata.example.Message;
+import com.sdl.odata.example.Topic;
 
 /**
  *
@@ -46,28 +50,36 @@ import java.util.function.Predicate;
 public class StrategyBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(StrategyBuilder.class);
 
-    private List<Predicate<Person>> predicates = new ArrayList<>();
+    private List<Predicate<Topic>> predicatesTopic = new ArrayList<>();
+    private List<Predicate<Message>> predicatesMsg = new ArrayList<>();
+    
     private int limit = Integer.MAX_VALUE;
 
-    public List<Predicate<Person>> buildCriteria(QueryOperation queryOperation) throws ODataException {
-        buildFromOperation(queryOperation);
+    public List<Predicate<Topic>> buildCriteriaTopic(QueryOperation queryOperation, TargetType targetType) throws ODataException {
+        buildFromOperation(queryOperation, targetType);
 
-        return predicates;
+        return predicatesTopic;
+    }
+    
+    public List<Predicate<Message>> buildCriteriaMessage(QueryOperation queryOperation, TargetType targetType) throws ODataException {
+        buildFromOperation(queryOperation, targetType);
+
+        return predicatesMsg;
     }
 
     public int getLimit() {
         return limit;
     }
 
-    private void buildFromOperation(QueryOperation operation) throws ODataException {
+    private void buildFromOperation(QueryOperation operation, TargetType targetType) throws ODataException {
         if (operation instanceof SelectOperation) {
             buildFromSelect((SelectOperation) operation);
         } else if (operation instanceof SelectByKeyOperation) {
-            buildFromSelectByKey((SelectByKeyOperation) operation);
+            buildFromSelectByKey((SelectByKeyOperation) operation, targetType);
         } else if (operation instanceof CriteriaFilterOperation) {
-            buildFromFilter((CriteriaFilterOperation)operation);
+            buildFromFilter((CriteriaFilterOperation)operation, targetType);
         } else if (operation instanceof LimitOperation) {
-            buildFromLimit((LimitOperation) operation);
+            buildFromLimit((LimitOperation) operation, targetType);
         } else if (operation instanceof SkipOperation) {
             //not supported for now
         } else if (operation instanceof ExpandOperation) {
@@ -76,30 +88,40 @@ public class StrategyBuilder {
             //not supported for now
         } else if (operation instanceof SelectPropertiesOperation) {
             //not supported for now
+        } else if (operation instanceof JoinOperation) {
+        	buildFromJoin((JoinOperation) operation, targetType);
         } else {
             throw new ODataSystemException("Unsupported query operation: " + operation);
         }
     }
 
-    private void buildFromLimit(LimitOperation operation) throws ODataException {
+    private void buildFromLimit(LimitOperation operation, TargetType targetType) throws ODataException {
         this.limit = operation.getCount();
         LOG.debug("Limit has been set to: {}", limit);
-        buildFromOperation(operation.getSource());
+        buildFromOperation(operation.getSource(), targetType);
     }
 
     private void buildFromSelect(SelectOperation selectOperation) {
         LOG.debug("Selecting all persons, no predicates needed");
     }
-
-    private void buildFromSelectByKey(SelectByKeyOperation selectByKeyOperation) {
-        Map<String, Object> keys = selectByKeyOperation.getKeyAsJava();
-        String personId = (String)keys.get("id");
-        LOG.debug("Selecting by key: {}", personId);
-
-        predicates.add(person -> person.getPersonId().equalsIgnoreCase(personId));
+    
+    private void buildFromJoin(JoinOperation joinOperation, TargetType targetType) {
+    	System.out.println(joinOperation);
     }
 
-    private void buildFromFilter(CriteriaFilterOperation criteriaFilterOperation) {
+    private void buildFromSelectByKey(SelectByKeyOperation selectByKeyOperation, TargetType targetType) {
+        Map<String, Object> keys = selectByKeyOperation.getKeyAsJava();
+        String id = (String)keys.get("id");
+        LOG.debug("Selecting by key: {}", id);
+
+        if (targetType.typeName().equals(Topic.class.getName())) {
+        	predicatesTopic.add(topic -> topic.getId().equalsIgnoreCase(id));
+        } else {
+        	predicatesMsg.add(msg -> msg.getId().equalsIgnoreCase(id));
+        }
+    }
+
+    private void buildFromFilter(CriteriaFilterOperation criteriaFilterOperation, TargetType targetType) {
         Criteria criteria = criteriaFilterOperation.getCriteria();
         if(criteria instanceof ComparisonCriteria) {
             ComparisonCriteria comparisonCriteria = (ComparisonCriteria) criteria;
@@ -111,31 +133,54 @@ public class StrategyBuilder {
                 PropertyCriteriaValue propertyCriteriaValue = (PropertyCriteriaValue) comparisonCriteria.getLeft();
                 LiteralCriteriaValue literalCriteriaValue = (LiteralCriteriaValue) comparisonCriteria.getRight();
 
-                Predicate<Person> p = person -> {
-                    Object fieldValue = getPersonField(person, propertyCriteriaValue.getPropertyName());
-                    Object queryValue = literalCriteriaValue.getValue();
+                if (targetType.typeName().equals(Topic.class.getName())) {
+                	Predicate<Topic> t = topic -> {
+                        Object fieldValue = getTopicField(topic, propertyCriteriaValue.getPropertyName());
+                        Object queryValue = literalCriteriaValue.getValue();
 
-                    LOG.debug("Comparing equality on value: {} to queried value: {}", fieldValue, queryValue);
+                        LOG.debug("Comparing equality on value: {} to queried value: {}", fieldValue, queryValue);
 
-                    return fieldValue != null && fieldValue.equals(literalCriteriaValue.getValue());
-                };
+                        return fieldValue != null && fieldValue.equals(literalCriteriaValue.getValue());
+                    };
 
-                predicates.add(p);
+                    predicatesTopic.add(t);
+                } else {
+                	Predicate<Message> t = msg -> {
+                        Object fieldValue = getMessageField(msg, propertyCriteriaValue.getPropertyName());
+                        Object queryValue = literalCriteriaValue.getValue();
+
+                        LOG.debug("Comparing equality on value: {} to queried value: {}", fieldValue, queryValue);
+
+                        return fieldValue != null && fieldValue.equals(literalCriteriaValue.getValue());
+                    };
+
+                    predicatesMsg.add(t);
+                }
+                
             }
         }
     }
 
-    private Object getPersonField(Person person, String propertyName) {
+    private Object getTopicField(Topic topic, String propertyName) {
         try {
-            Field field = person.getClass().getDeclaredField(propertyName);
+            Field field = topic.getClass().getDeclaredField(propertyName);
             field.setAccessible(true);
-            return field.get(person);
+            return field.get(topic);
         } catch (IllegalAccessException | NoSuchFieldException e) {
             LOG.debug("Could not load property: " + propertyName);
             return null;
         }
     }
 
-
+    private Object getMessageField(Message msg, String propertyName) {
+        try {
+            Field field = msg.getClass().getDeclaredField(propertyName);
+            field.setAccessible(true);
+            return field.get(msg);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            LOG.debug("Could not load property: " + propertyName);
+            return null;
+        }
+    }
 
 }
