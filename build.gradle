@@ -1,4 +1,4 @@
-description('SDL OData v4 JPA Datasource example')
+description = 'SDL OData v4 JPA Datasource example'
 
 allprojects  {
   apply plugin: 'maven'

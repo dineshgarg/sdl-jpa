@@ -1,4 +1,5 @@
 description = 'Datasource'
+
 dependencies {
   compile group: 'com.sdl', name: 'odata_api', version:'2.0.5'
   compile project(':example-model')

@@ -7,3 +7,7 @@ dependencies {
   compile group: 'com.google.guava', name: 'guava', version:'18.0'
   compile group: 'com.h2database', name: 'h2', version:'1.4.182'
 }
+
+
+apply plugin: 'application'
+mainClassName = "com.sdl.odata.example.service.ServiceContainer"
