@@ -20,21 +20,18 @@ import javax.persistence.Entity;
 
 @Entity
 public class City extends AbstractEntity {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@Column(length=1024)
 	private String name;
-	
+
 	@Column(length=1024)
 	private String zipCode;
-	
+
 	@Column(length=1024)
 	private String state;
-	
+
 	public String getName() {
 		return name;
 	}
@@ -53,5 +50,5 @@ public class City extends AbstractEntity {
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
 	}
-	
+
 }

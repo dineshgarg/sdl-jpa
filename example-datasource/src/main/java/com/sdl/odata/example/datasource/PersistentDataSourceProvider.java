@@ -15,14 +15,6 @@
  */
 package com.sdl.odata.example.datasource;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.parser.TargetType;
 import com.sdl.odata.api.processor.datasource.DataSource;
@@ -35,35 +27,42 @@ import com.sdl.odata.example.edm.entities.City;
 import com.sdl.odata.example.edm.entities.Person;
 import com.sdl.odata.example.persistent.entities.CityRepo;
 import com.sdl.odata.example.persistent.entities.PersonRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class PersistentDataSourceProvider implements DataSourceProvider {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PersistentDataSourceProvider.class);
-	
+
 	@Autowired
 	private PersistentDataSource persistentDS;
-	
+
 	@Autowired
 	private CityRepo cityRepo;
-	
+
 	@Autowired
 	private PersonRepo personRepo;
-	
+
 	@Override
 	public DataSource getDataSource(ODataRequestContext arg0) {
 		return persistentDS;
 	}
 
-	@Override	
+	@Override
     public QueryOperationStrategy getStrategy(ODataRequestContext oDataRequestContext, QueryOperation queryOperation, TargetType targetType) throws ODataException {
-        
+
         if (targetType.typeName().equals("SDL.OData.Example.Person")) {
-        	
+
 	        return () -> {
 	            LOG.debug("Executing query against in memory data");
 	            List<com.sdl.odata.example.persistent.entities.Person> persons = personRepo.findAll();
-	            
+
 	            List<Person> personEntities = new ArrayList<>();
 	            for (com.sdl.odata.example.persistent.entities.Person p : persons) {
 	            	Person personEntity = new Person();
@@ -74,17 +73,17 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
 	            	personEntity.setCity(p.getCity().getName());
 	            	personEntities.add(personEntity);
 	            }
-	
+
 	            LOG.debug("Found {} persons matching query", personEntities.size());
-	
+
 	            return personEntities;
 	        };
         } else {
-	
+
 	        return () -> {
 	            LOG.debug("Executing query against in memory data");
 	            List<com.sdl.odata.example.persistent.entities.City> cities = cityRepo.findAll();
-	            
+
 	            List<City> cityEntities = new ArrayList<>();
 	            for (com.sdl.odata.example.persistent.entities.City c : cities) {
 	            	City cityEntity = new City();
@@ -94,9 +93,9 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
 	            	cityEntity.setState(c.getState());
 	            	cityEntities.add(cityEntity);
 	            }
-	            
+
 	            LOG.debug("Found {} persons matching query", cityEntities.size());
-	
+
 	            return cityEntities;
 	        };
         }
