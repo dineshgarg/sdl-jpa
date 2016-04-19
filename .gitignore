@@ -8,3 +8,8 @@
 target/
 src/test/java/META-INF/
 **/*.suo
+lib/
+.gradle/
+gradlew
+gradle
+build/
