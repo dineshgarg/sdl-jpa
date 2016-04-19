@@ -9,7 +9,6 @@ target/
 src/test/java/META-INF/
 **/*.suo
 lib/
+gradle/
 .gradle/
-gradlew
-gradle
 build/
