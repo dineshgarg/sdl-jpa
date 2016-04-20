@@ -27,13 +27,11 @@ import com.sdl.odata.example.edm.entities.City;
 import com.sdl.odata.example.edm.entities.Person;
 import com.sdl.odata.example.persistent.entities.CityRepo;
 import com.sdl.odata.example.persistent.entities.PersonRepo;
+import com.sdl.odata.jpa.JpaStrategyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class PersistentDataSourceProvider implements DataSourceProvider {
@@ -50,60 +48,25 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
 	private PersonRepo personRepo;
 
 	@Override
-	public DataSource getDataSource(ODataRequestContext arg0) {
+	public DataSource getDataSource(ODataRequestContext ctx) {
 		return persistentDS;
 	}
 
 	@Override
-    public QueryOperationStrategy getStrategy(ODataRequestContext oDataRequestContext, QueryOperation queryOperation, TargetType targetType) throws ODataException {
-
-        if (targetType.typeName().equals("SDL.OData.Example.Person")) {
-
-	        return () -> {
-	            LOG.debug("Executing query against in memory data");
-	            List<com.sdl.odata.example.persistent.entities.Person> persons = personRepo.findAll();
-
-	            List<Person> personEntities = new ArrayList<>();
-	            for (com.sdl.odata.example.persistent.entities.Person p : persons) {
-	            	Person personEntity = new Person();
-	            	personEntity.setFirstName(p.getFirstName());
-	            	personEntity.setLastName(p.getLastName());
-	            	personEntity.setEmailId(p.getEmailId());
-	            	personEntity.setId(p.getId());
-	            	personEntity.setCity(p.getCity().getName());
-	            	personEntities.add(personEntity);
-	            }
-
-	            LOG.debug("Found {} persons matching query", personEntities.size());
-
-	            return personEntities;
-	        };
-        } else {
-
-	        return () -> {
-	            LOG.debug("Executing query against in memory data");
-	            List<com.sdl.odata.example.persistent.entities.City> cities = cityRepo.findAll();
-
-	            List<City> cityEntities = new ArrayList<>();
-	            for (com.sdl.odata.example.persistent.entities.City c : cities) {
-	            	City cityEntity = new City();
-	            	cityEntity.setName(c.getName());
-	            	cityEntity.setId(c.getId());
-	            	cityEntity.setZipCode(c.getZipCode());
-	            	cityEntity.setState(c.getState());
-	            	cityEntities.add(cityEntity);
-	            }
-
-	            LOG.debug("Found {} persons matching query", cityEntities.size());
-
-	            return cityEntities;
-	        };
-        }
+    public QueryOperationStrategy getStrategy(ODataRequestContext requestContext,
+                                              QueryOperation queryOperation,
+                                              TargetType targetType) throws ODataException {
+		return JpaStrategyBuilder.
+                create().
+                withContext(requestContext).
+                withOperation(queryOperation).
+                expecting(targetType).
+                build();
     }
 
 	@Override
     public boolean isSuitableFor(ODataRequestContext oDataRequestContext, String entityType) throws ODataDataSourceException {
-        return oDataRequestContext.getEntityDataModel().getType(entityType).getJavaType().equals(Person.class) || oDataRequestContext.getEntityDataModel().getType(entityType).getJavaType().equals(City.class);
+        return oDataRequestContext.getEntityDataModel().getType(entityType).getJavaType().equals(Person.class) ||
+                oDataRequestContext.getEntityDataModel().getType(entityType).getJavaType().equals(City.class);
     }
-
 }
