@@ -1,8 +1,10 @@
 rootProject.name = 'odata-example'
+include ':odata-jpa'
 include ':example-model'
 include ':example-datasource'
 include ':example-service'
 
+project(':odata-jpa').projectDir = "$rootDir/odata-jpa" as File
 project(':example-model').projectDir = "$rootDir/example-model" as File
 project(':example-datasource').projectDir = "$rootDir/example-datasource" as File
 project(':example-service').projectDir = "$rootDir/example-service" as File
