@@ -7,7 +7,8 @@ import com.sdl.odata.api.service.ODataRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * Given Edm and Jpa entities, execute query on database
@@ -16,6 +17,9 @@ import java.util.Collections;
 public class JpaStrategyBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(JpaStrategyBuilder.class);
+
+    @PersistenceContext
+    private EntityManager em;
 
     private ODataRequestContext requestContext;
     private QueryOperation queryOperation;
@@ -45,15 +49,17 @@ public class JpaStrategyBuilder {
     public QueryOperationStrategy build() {
         LOG.debug("Building JPA query for odata request");
 
+        String query;
         if (targetType.isCollection()) {
             // Get edm entity
             // Get jpa entity
-            // Get jpa repo
-            // do query (all for now)
-            return () -> Collections.emptyList();
+            // create query (all for now)
+            query = "from Person";
         } else {
             // Same, find and return entity or value
-            return () -> null;
+            query = "from Person where id=123";
         }
+
+        return () -> em.createQuery(query).getResultList();
     }
 }
