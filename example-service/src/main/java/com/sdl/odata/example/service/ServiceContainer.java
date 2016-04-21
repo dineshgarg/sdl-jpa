@@ -34,7 +34,9 @@ import com.sdl.odata.service.ODataServiceConfiguration;
  * @author rdevries
  */
 @Configuration
-@EnableAutoConfiguration(exclude = {HibernateJpaAutoConfiguration.class, DataSourceAutoConfiguration.class,
+@EnableAutoConfiguration(exclude = {
+        HibernateJpaAutoConfiguration.class,
+        DataSourceAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class })
 @Import({
         PersistentDataSourceConfiguration.class,
@@ -54,5 +56,4 @@ public class ServiceContainer {
 
         LOG.info("Example Service application container started");
     }
-
 }

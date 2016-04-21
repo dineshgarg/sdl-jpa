@@ -118,6 +118,7 @@
     </dependencyManagement>
 
     <modules>
+        <module>odata-jpa</module>
         <module>example-model</module>
         <module>example-datasource</module>
         <module>example-service</module>
