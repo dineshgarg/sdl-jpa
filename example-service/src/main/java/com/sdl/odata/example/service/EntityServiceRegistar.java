@@ -15,21 +15,20 @@
  */
 package com.sdl.odata.example.service;
 
-import javax.annotation.PostConstruct;
-
+import com.google.common.collect.Lists;
+import com.sdl.odata.api.ODataException;
+import com.sdl.odata.api.edm.registry.ODataEdmRegistry;
+import com.sdl.odata.example.datasource.PersistentDataSource;
+import com.sdl.odata.example.persistent.entities.City;
+import com.sdl.odata.example.persistent.entities.CityRepo;
+import com.sdl.odata.example.persistent.entities.Person;
+import com.sdl.odata.example.persistent.entities.PersonRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-import com.sdl.odata.api.ODataException;
-import com.sdl.odata.api.edm.registry.ODataEdmRegistry;
-import com.sdl.odata.example.datasource.PersistentDataSource;
-import com.sdl.odata.example.edm.entities.City;
-import com.sdl.odata.example.edm.entities.Person;
-import com.sdl.odata.example.persistent.entities.CityRepo;
-import com.sdl.odata.example.persistent.entities.PersonRepo;
+import javax.annotation.PostConstruct;
 
 /**
  * @author rdevries
@@ -40,13 +39,13 @@ public class EntityServiceRegistar {
 
     @Autowired
     private ODataEdmRegistry oDataEdmRegistry;
-    
+
     @Autowired
     private PersistentDataSource persistedDS;
 
     @Autowired
     private CityRepo cityRepo;
-    
+
     @Autowired
     private PersonRepo personRepo;
 
@@ -55,29 +54,29 @@ public class EntityServiceRegistar {
         LOG.debug("Registering example entities");
 
         oDataEdmRegistry.registerClasses(Lists.newArrayList(
-                City.class,
-                Person.class
+                com.sdl.odata.example.edm.entities.City.class,
+                com.sdl.odata.example.edm.entities.Person.class
         ));
 
-        com.sdl.odata.example.persistent.entities.City c = new com.sdl.odata.example.persistent.entities.City();
+        City c = new City();
         c.setName("Redwood City");
         c.setState("CA");
         c.setZipCode("94063");
-        com.sdl.odata.example.persistent.entities.City savedCity = cityRepo.save(c);
-        
-        com.sdl.odata.example.persistent.entities.Person p = new com.sdl.odata.example.persistent.entities.Person();
+        City savedCity = cityRepo.save(c);
+
+        Person p = new Person();
         p.setFirstName("Dinesh");
         p.setLastName("Garg");
         p.setEmailId("dg@dg.com");
         p.setCity(savedCity);
-        com.sdl.odata.example.persistent.entities.Person p1 = new com.sdl.odata.example.persistent.entities.Person();
+
+        Person p1 = new Person();
         p1.setFirstName("Oleg");
         p1.setLastName("Burykin");
         p1.setEmailId("ob@ob.com");
         p1.setCity(savedCity);
+
         personRepo.save(p);
         personRepo.save(p1);
-
-
     }
 }

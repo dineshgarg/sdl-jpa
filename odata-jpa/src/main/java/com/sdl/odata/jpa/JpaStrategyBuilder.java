@@ -1,6 +1,8 @@
 package com.sdl.odata.jpa;
 
+import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.parser.TargetType;
+import com.sdl.odata.api.processor.datasource.ODataDataSourceException;
 import com.sdl.odata.api.processor.query.QueryOperation;
 import com.sdl.odata.api.processor.query.strategy.QueryOperationStrategy;
 import com.sdl.odata.api.service.ODataRequestContext;
@@ -8,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaQuery;
 
 /**
  * Given Edm and Jpa entities, execute query on database
@@ -41,26 +45,20 @@ public class JpaStrategyBuilder {
         return this;
     }
 
-    public JpaStrategyBuilder expecting(TargetType targetType) {
-        this.targetType = targetType;
-        return this;
-    }
-
-    public QueryOperationStrategy build() {
+    public QueryOperationStrategy build() throws ODataException {
         LOG.debug("Building JPA query for odata request");
 
-        String query;
-        if (targetType.isCollection()) {
-            // Get edm entity
-            // Get jpa entity
-            // create query (all for now)
-            // Convert jpa to edm
-            query = "from Person";
-        } else {
-            // Same, find and return entity or value
-            query = "from Person where id=123";
+        CriteriaQuery cq;
+        try {
+            cq = new OdataJpaQueryBuilder(requestContext, queryOperation).build(em.getCriteriaBuilder());
+        } catch (ClassNotFoundException e) {
+            LOG.error("Failed to create JPA query", e);
+            throw new ODataDataSourceException("Failed to create JPA query", e);
         }
 
-        return () -> em.createQuery(query).getResultList();
+        Query query = em.createQuery(cq);
+
+        // TODO convert to EDM
+        return () -> query.getResultList();
     }
 }
