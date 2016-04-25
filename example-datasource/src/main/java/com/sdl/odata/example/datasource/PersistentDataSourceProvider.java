@@ -25,13 +25,13 @@ import com.sdl.odata.api.processor.query.strategy.QueryOperationStrategy;
 import com.sdl.odata.api.service.ODataRequestContext;
 import com.sdl.odata.example.edm.entities.City;
 import com.sdl.odata.example.edm.entities.Person;
-import com.sdl.odata.example.persistent.entities.CityRepo;
-import com.sdl.odata.example.persistent.entities.PersonRepo;
 import com.sdl.odata.jpa.JpaStrategyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Component
 public class PersistentDataSourceProvider implements DataSourceProvider {
@@ -41,11 +41,8 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
 	@Autowired
 	private PersistentDataSource persistentDS;
 
-	@Autowired
-	private CityRepo cityRepo;
-
-	@Autowired
-	private PersonRepo personRepo;
+	@PersistenceContext
+	private EntityManager em;
 
 	@Override
 	public DataSource getDataSource(ODataRequestContext ctx) {
@@ -57,7 +54,7 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
                                               QueryOperation queryOperation,
                                               TargetType targetType) throws ODataException {
 		return JpaStrategyBuilder.
-                create().
+                create(em).
                 withContext(requestContext).
                 withOperation(queryOperation).
                 expecting(targetType).
