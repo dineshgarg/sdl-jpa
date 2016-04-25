@@ -1,6 +1,8 @@
 package com.sdl.odata.jpa;
 
+import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.parser.TargetType;
+import com.sdl.odata.api.processor.datasource.ODataDataSourceException;
 import com.sdl.odata.api.processor.query.QueryOperation;
 import com.sdl.odata.api.processor.query.strategy.QueryOperationStrategy;
 import com.sdl.odata.api.service.ODataRequestContext;
@@ -43,14 +45,20 @@ public class JpaStrategyBuilder {
         return this;
     }
 
-    public QueryOperationStrategy build() {
+    public QueryOperationStrategy build() throws ODataException {
         LOG.debug("Building JPA query for odata request");
 
-        CriteriaQuery cq = new OdataJpaQueryBuilder(requestContext, queryOperation).build(em.getCriteriaBuilder());
+        CriteriaQuery cq;
+        try {
+            cq = new OdataJpaQueryBuilder(requestContext, queryOperation).build(em.getCriteriaBuilder());
+        } catch (ClassNotFoundException e) {
+            LOG.error("Failed to create JPA query", e);
+            throw new ODataDataSourceException("Failed to create JPA query", e);
+        }
+
         Query query = em.createQuery(cq);
 
-        LOG.debug("JPA query: " + query);
-
-        return query::getResultList;
+        // TODO convert to EDM
+        return () -> query.getResultList();
     }
 }
