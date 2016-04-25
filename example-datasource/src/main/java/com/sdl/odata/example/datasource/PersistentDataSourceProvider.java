@@ -26,8 +26,6 @@ import com.sdl.odata.api.service.ODataRequestContext;
 import com.sdl.odata.example.edm.entities.City;
 import com.sdl.odata.example.edm.entities.Person;
 import com.sdl.odata.jpa.JpaStrategyBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,13 +35,11 @@ import javax.persistence.PersistenceContext;
 @Component
 public class PersistentDataSourceProvider implements DataSourceProvider {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PersistentDataSourceProvider.class);
-
 	@Autowired
 	private PersistentDataSource persistentDS;
 
-	@PersistenceContext
-	private EntityManager em;
+    @PersistenceContext
+    private EntityManager em;
 
 	@Override
 	public DataSource getDataSource(ODataRequestContext ctx) {
@@ -58,7 +54,6 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
                 create(em).
                 withContext(requestContext).
                 withOperation(queryOperation).
-                expecting(targetType).
                 build();
     }
 

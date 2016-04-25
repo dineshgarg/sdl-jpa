@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaQuery;
 
 /**
  * Given Edm and Jpa entities, execute query on database
@@ -41,26 +43,14 @@ public class JpaStrategyBuilder {
         return this;
     }
 
-    public JpaStrategyBuilder expecting(TargetType targetType) {
-        this.targetType = targetType;
-        return this;
-    }
-
     public QueryOperationStrategy build() {
         LOG.debug("Building JPA query for odata request");
 
-        String query;
-        if (targetType.isCollection()) {
-            // Get edm entity
-            // Get jpa entity
-            // create query (all for now)
-            // Convert jpa to edm
-            query = "from Person";
-        } else {
-            // Same, find and return entity or value
-            query = "from Person where id=123";
-        }
+        CriteriaQuery cq = new OdataJpaQueryBuilder(requestContext, queryOperation).build(em.getCriteriaBuilder());
+        Query query = em.createQuery(cq);
 
-        return () -> em.createQuery(query).getResultList();
+        LOG.debug("JPA query: " + query);
+
+        return query::getResultList;
     }
 }
