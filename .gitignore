@@ -12,3 +12,4 @@ lib/
 gradle/
 .gradle/
 build/
+bin/

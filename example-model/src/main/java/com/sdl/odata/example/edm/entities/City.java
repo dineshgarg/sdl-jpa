@@ -21,9 +21,11 @@ import com.sdl.odata.api.edm.annotations.EdmEntity;
 import com.sdl.odata.api.edm.annotations.EdmEntitySet;
 import com.sdl.odata.api.edm.annotations.EdmNavigationProperty;
 import com.sdl.odata.api.edm.annotations.EdmProperty;
+import com.sdl.odata.jpa.annotation.JPAEntity;
 
 @EdmEntity(namespace = "SDL.OData.Example", key = "id", containerName = "SDLExample")
 @EdmEntitySet(name="Cities")
+@JPAEntity(jpaEntityClass = com.sdl.odata.example.persistent.entities.City.class)
 public class City {
 	
 	@EdmProperty(name = "id", nullable = false)

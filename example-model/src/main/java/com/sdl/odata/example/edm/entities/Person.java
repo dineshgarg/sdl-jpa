@@ -18,9 +18,12 @@ package com.sdl.odata.example.edm.entities;
 import com.sdl.odata.api.edm.annotations.EdmEntity;
 import com.sdl.odata.api.edm.annotations.EdmEntitySet;
 import com.sdl.odata.api.edm.annotations.EdmProperty;
+import com.sdl.odata.jpa.annotation.JPAEntity;
+import com.sdl.odata.jpa.annotation.JPAField;
 
 @EdmEntity(namespace = "SDL.OData.Example", key = "id", containerName = "SDLExample")
 @EdmEntitySet
+@JPAEntity(jpaEntityClass = com.sdl.odata.example.persistent.entities.Person.class)
 public class Person {
 	
 	@EdmProperty(name = "id", nullable = false)
@@ -36,6 +39,7 @@ public class Person {
     private String emailId;
 	
 	@EdmProperty(name = "city", nullable = false)
+	@JPAField(jpaFieldPath = "city/name")
     private String city;
 	
 	public String getId() {

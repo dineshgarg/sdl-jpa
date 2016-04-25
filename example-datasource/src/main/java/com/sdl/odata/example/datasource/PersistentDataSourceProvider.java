@@ -28,7 +28,6 @@ import com.sdl.odata.example.edm.entities.Person;
 import com.sdl.odata.jpa.JpaStrategyBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
