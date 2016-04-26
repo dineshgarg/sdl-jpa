@@ -51,7 +51,6 @@ public class ServiceContainer {
         LOG.info("Starting Example Service Application container");
 
         SpringApplication springApplication = new SpringApplication(ServiceContainer.class);
-        springApplication.setShowBanner(false);
         springApplication.run(args);
 
         LOG.info("Example Service application container started");

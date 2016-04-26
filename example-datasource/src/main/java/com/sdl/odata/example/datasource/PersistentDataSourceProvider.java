@@ -53,6 +53,7 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
                 create(em).
                 withContext(requestContext).
                 withOperation(queryOperation).
+                withTargetType(targetType).
                 build();
     }
 

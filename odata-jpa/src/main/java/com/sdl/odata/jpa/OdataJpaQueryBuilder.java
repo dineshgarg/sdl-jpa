@@ -1,14 +1,15 @@
 package com.sdl.odata.jpa;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import com.sdl.odata.api.edm.model.EntityDataModel;
+import com.sdl.odata.api.parser.TargetType;
 import com.sdl.odata.api.processor.query.QueryOperation;
 import com.sdl.odata.api.processor.query.SelectByKeyOperation;
 import com.sdl.odata.api.processor.query.SelectOperation;
 import com.sdl.odata.api.service.ODataRequestContext;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 /**
  * Will build Jpa query from odata query for you.
@@ -17,10 +18,12 @@ public class OdataJpaQueryBuilder {
 
     private final ODataRequestContext requestContext;
     private final QueryOperation queryOperation;
+	private final TargetType targetType;
 
-    public OdataJpaQueryBuilder(ODataRequestContext requestContext, QueryOperation queryOperation) {
+    public OdataJpaQueryBuilder(ODataRequestContext requestContext, QueryOperation queryOperation, TargetType targetType) {
         this.requestContext = requestContext;
         this.queryOperation = queryOperation;
+        this.targetType = targetType;
     }
 
     public CriteriaQuery build(CriteriaBuilder criteriaBuilder) throws ClassNotFoundException, ODataJpaException {
@@ -41,9 +44,7 @@ public class OdataJpaQueryBuilder {
     private CriteriaQuery buildFromSelect(SelectOperation operation, CriteriaBuilder cb)
             throws ClassNotFoundException, ODataJpaException {
 
-        EntityDataModel edm = requestContext.getEntityDataModel();
-        String typeName = edm.getEntityContainer().getEntitySet(operation.entitySetName()).getTypeName();
-        Class<?> edmClass = edm.getType(typeName).getJavaType();
+        Class<?> edmClass = EdmUtil.getEdmEntityClass(requestContext, targetType);
         Class<?> jpaClass = AnnotationBrowser.toJpa(edmClass);
 
         CriteriaQuery cq = cb.createQuery(jpaClass);
