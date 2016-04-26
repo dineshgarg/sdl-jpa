@@ -1,8 +1,19 @@
-List entities:
+* [x] List entities:
 http://localhost:8080/example.svc/Cities
+http://localhost:8080/example.svc/Persons
 
-Retrieve by id:
-http://localhost:8080/example.svc/Cities('7eWP74c7lP4juko2bNgyc7')
+* [ ] Retrieve by id:
+http://localhost:8080/example.svc/Cities('City-1')
+http://localhost:8080/example.svc/Persons('Person-2')
 
-Sub-entity set:
-http://localhost:8080/example.svc/Cities('7eWP74c7lP4juko2bNgyc7')/persons
+* [ ] Sub-entities:
+http://localhost:8080/example.svc/Cities('City-1')/persons
+http://localhost:8080/example.svc/Cities('City-1')/persons('Person-1')
+
+* [ ] Values:
+http://localhost:8080/example.svc/Cities('City-1')/name
+
+* [ ] List operations:
+http://localhost:8080/example.svc/Persons?$top=3&$skip=4
+http://localhost:8080/example.svc/Persons/$count
+http://localhost:8080/example.svc/Persons/?$skip=4&$count=true
