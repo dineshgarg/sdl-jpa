@@ -19,7 +19,7 @@ public class AnnotationBrowser {
     public static Class<?> toJpa(Class<?> edmClass) throws ODataJpaException {
         for (Annotation ann : edmClass.getAnnotations()) {
             if (ann instanceof JPAEntity) {
-                return ((JPAEntity) ann).jpaEntityClass();
+                return ((JPAEntity) ann).clazz();
             }
         }
         throw new ODataJpaException("Can't find JPA entity for " + edmClass.getName());

@@ -25,7 +25,7 @@ import com.sdl.odata.jpa.annotation.JPAEntity;
 
 @EdmEntity(namespace = "SDL.OData.Example", key = "id", containerName = "SDLExample")
 @EdmEntitySet(name="Cities")
-@JPAEntity(jpaEntityClass = com.sdl.odata.example.persistent.entities.City.class)
+@JPAEntity(clazz = com.sdl.odata.example.persistent.entities.City.class)
 public class City {
 	
 	@EdmProperty(name = "id", nullable = false)

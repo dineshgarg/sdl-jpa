@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface JPAField {
 	
-	public String jpaFieldPath() default "";
+	public String path() default "";
 
 }
