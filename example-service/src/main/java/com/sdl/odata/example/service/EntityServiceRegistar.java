@@ -59,18 +59,21 @@ public class EntityServiceRegistar {
         ));
 
         City c = new City();
+        c.setId("City-1");
         c.setName("Redwood City");
         c.setState("CA");
         c.setZipCode("94063");
         City savedCity = cityRepo.save(c);
 
         Person p = new Person();
+        p.setId("Dinesh");
         p.setFirstName("Dinesh");
         p.setLastName("Garg");
         p.setEmailId("dg@dg.com");
         p.setCity(savedCity);
 
         Person p1 = new Person();
+        p1.setId("Oleg");
         p1.setFirstName("Oleg");
         p1.setLastName("Burykin");
         p1.setEmailId("ob@ob.com");

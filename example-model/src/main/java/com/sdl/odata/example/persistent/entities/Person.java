@@ -22,30 +22,26 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class Person extends AbstractEntity {
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
 	@Column(length=1024)
 	private String firstName;
-	
+
 	@Column(length=1024)
 	private String lastName;
-	
+
 	@Column(length=1024)
 	private String emailId;
-	
+
 	@ManyToOne(fetch=FetchType.EAGER)
 	private City city;
 
-	public City getCity() {
-		return city;
-	}
-
-	public void setCity(City city) {
-		this.city = city;
+	public void setId(String id) {
+		super.setId(id);
 	}
 
 	public String getFirstName() {
@@ -71,5 +67,12 @@ public class Person extends AbstractEntity {
 	public void setEmailId(String emailId) {
 		this.emailId = emailId;
 	}
-	
+
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
+	}
 }

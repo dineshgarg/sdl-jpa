@@ -32,6 +32,10 @@ public class City extends AbstractEntity {
 	@Column(length=1024)
 	private String state;
 
+	public void setId(String id) {
+		super.setId(id);
+	}
+
 	public String getName() {
 		return name;
 	}

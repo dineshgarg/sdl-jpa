@@ -1,18 +1,17 @@
 package com.sdl.odata.jpa;
 
-import com.sdl.odata.api.ODataErrorCode;
-import com.sdl.odata.api.ODataException;
+import com.sdl.odata.api.processor.datasource.ODataDataSourceException;
 
 /**
  * OData JPA project base exception.
  */
-public class ODataJpaException extends ODataException {
+public class ODataJpaException extends ODataDataSourceException {
 
     public ODataJpaException(String message) {
-        super(ODataErrorCode.UNKNOWN_ERROR, message);
+        super(message);
     }
 
     public ODataJpaException(String message, Throwable e) {
-        super(ODataErrorCode.UNKNOWN_ERROR, message, e);
+        super(message, e);
     }
 }
