@@ -17,3 +17,7 @@ http://localhost:8080/example.svc/Cities('City-1')/name
 http://localhost:8080/example.svc/Persons?$top=3&$skip=4  
 http://localhost:8080/example.svc/Persons/$count  
 http://localhost:8080/example.svc/Persons/?$skip=4&$count=true
+
+* [ ] Filter operations:  
+http://localhost:8080/example.svc/Persons?$filter=name eq 'my-name'
+http://localhost:8080/example.svc/Persons?$filter=name eq 'my-name'&$skip=4&$count=true&$top=5
