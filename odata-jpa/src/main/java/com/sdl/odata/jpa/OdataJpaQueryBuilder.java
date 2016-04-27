@@ -1,6 +1,7 @@
 package com.sdl.odata.jpa;
 
 import com.sdl.odata.api.parser.TargetType;
+import com.sdl.odata.api.processor.query.JoinOperation;
 import com.sdl.odata.api.processor.query.QueryOperation;
 import com.sdl.odata.api.processor.query.SelectByKeyOperation;
 import com.sdl.odata.api.processor.query.SelectOperation;
@@ -30,45 +31,60 @@ public class OdataJpaQueryBuilder {
         this.em = em;
     }
 
-    public CriteriaQuery build()
-            throws ClassNotFoundException, ODataJpaException {
+    private Class<?> toJpa(String entitySet) throws ODataJpaException {
+        Class<?> edmClass = EdmUtil.getEdmEntityClass(requestContext,
+                requestContext.getEntityDataModel().getEntityContainer().getEntitySet(entitySet).getTypeName());
+        return AnnotationBrowser.toJpa(edmClass);
+    }
 
-        Class<?> edmClass = EdmUtil.getEdmEntityClass(requestContext, targetType);
-        Class<?> jpaClass = AnnotationBrowser.toJpa(edmClass);
-
+    public CriteriaQuery build() throws ClassNotFoundException, ODataJpaException {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery cq = cb.createQuery();
-        fromOperation(queryOperation, cb, cq, jpaClass);
+        fromOperation(queryOperation, cb, cq);
         return cq;
     }
 
-    private void fromOperation(QueryOperation operation, CriteriaBuilder cb, CriteriaQuery cq, Class<?> jpaClass)
+    private void fromOperation(QueryOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
             throws ClassNotFoundException, ODataJpaException {
 
         if (operation instanceof SelectOperation) {
-            buildFromSelect((SelectOperation) operation, cq, jpaClass);
+            buildFromSelect((SelectOperation) operation, cq);
         } else if (operation instanceof SelectByKeyOperation) {
-            buildFromSelectByKey((SelectByKeyOperation) operation, cb, cq, jpaClass);
+            buildFromSelectByKey((SelectByKeyOperation) operation, cb, cq);
+        } else if (operation instanceof JoinOperation) {
+            buildFromJoin((JoinOperation) operation, cb, cq);
         }
     }
 
-    private void buildFromSelect(SelectOperation operation, CriteriaQuery cq, Class<?> jpaClass)
-            throws ClassNotFoundException, ODataJpaException {
+    private void buildFromJoin(JoinOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
+            throws ODataJpaException, ClassNotFoundException {
 
-        cq.select(cq.from(jpaClass));
+        fromOperation(operation.getRightSource(), cb, cq);
+        fromOperation(operation.getLeftSource(), cb, cq);
     }
 
-    private void buildFromSelectByKey(SelectByKeyOperation operation, CriteriaBuilder cb, CriteriaQuery cq,
-                                      Class<?> jpaClass) {
-        Map<String, Object> keys = operation.getKeyAsJava();
+    private void buildFromSelect(SelectOperation operation, CriteriaQuery cq)
+            throws ClassNotFoundException, ODataJpaException {
 
-        Root<?> root = cq.from(jpaClass);
-        cq.select(root);
+        if (cq.getSelection() == null) {
+            Root<?> root = cq.from(toJpa(operation.entitySetName()));
+            cq.select(root);
+        }
+    }
+
+    private void buildFromSelectByKey(SelectByKeyOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
+            throws ODataJpaException {
+
+        Root<?> root = cq.from(toJpa(operation.entitySetName()));
+        if (cq.getSelection() == null) {
+            cq.select(root);
+        }
 
         // TODO: Need to find what is Id field for given EDM entity
         // TODO: And what is ID field for JPA entity.
         // FIXME Hardcoded ID field names.
 
+        Map<String, Object> keys = operation.getKeyAsJava();
         cq.where(cb.equal(root.get("id"), keys.get("id")));
     }
 }
