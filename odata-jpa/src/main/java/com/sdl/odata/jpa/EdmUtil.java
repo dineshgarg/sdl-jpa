@@ -6,7 +6,10 @@ import com.sdl.odata.api.service.ODataRequestContext;
 public class EdmUtil {
 
     public static Class<?> getEdmEntityClass(ODataRequestContext requestContext, TargetType targetType) {
-		String typeName = targetType.typeName();
+        return getEdmEntityClass(requestContext, targetType.typeName());
+    }
+
+    public static Class<?> getEdmEntityClass(ODataRequestContext requestContext, String typeName) {
 		return requestContext.getEntityDataModel().getType(typeName).getJavaType();
     }
 }
