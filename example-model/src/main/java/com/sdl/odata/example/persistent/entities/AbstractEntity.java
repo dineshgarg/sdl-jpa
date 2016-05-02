@@ -16,45 +16,24 @@
 
 package com.sdl.odata.example.persistent.entities;
 
-import java.util.Date;
+import org.springframework.data.domain.Persistable;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
-import javax.persistence.Version;
-
-import org.springframework.data.domain.Persistable;
 
 /**
- * Created by hrawat on 10/20/15.
- * 
- * TODO: Review this: 
- * Modified after copying Harish's original IDS impl: 
- * 	* orgId attribute for notification service.
+ * Base entity class.
  */
 @MappedSuperclass
 public abstract class AbstractEntity implements Persistable<String> {
 	private static final long serialVersionUID = 1L;
-	
+
     @Id
     @Column(unique = true, nullable = false, length = 22)
     private String id;
-
-    @Version
-    private long version;
-
-    @Column(name="createTime", columnDefinition="TIMESTAMP")
-    private Date createTime;
-
-    @Column(name="updateTime", columnDefinition="TIMESTAMP")
-    private Date updateTime;
-
-    private String createdByUserId;
-
-    private String updatedByUserId;
 
     @Transient
     public boolean isNew() {
@@ -62,7 +41,7 @@ public abstract class AbstractEntity implements Persistable<String> {
     }
 
     public String toString() {
-        return String.format("Entity of type %s with id: %s", new Object[]{this.getClass().getName(), this.getId()});
+        return String.format("Entity of type %s with id: %s", this.getClass().getName(), this.getId());
     }
 
     public boolean equals(Object obj) {
@@ -74,17 +53,13 @@ public abstract class AbstractEntity implements Persistable<String> {
             return false;
         } else {
             AbstractEntity that = (AbstractEntity)obj;
-            return null == this.getId()? false : this.getId().equals(that.getId());
+            return null != this.getId() && this.getId().equals(that.getId());
         }
     }
 
     public int hashCode() {
         byte hashCode = 13;
-        int hashCode1 = hashCode + (null == this.getId()? 0 : this.getId().hashCode() * 31);
-        return hashCode1;
-    }
-    public AbstractEntity() {
-    	
+        return hashCode + (null == this.getId()? 0 : this.getId().hashCode() * 31);
     }
 
     public String getId() {
@@ -95,63 +70,10 @@ public abstract class AbstractEntity implements Persistable<String> {
         this.id = id;
     }
 
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
-
-    public Date getCreateTime() {
-        return new Date(createTime.getTime());
-    }
-
-    public void setCreateTime(Date time) {
-        this.createTime = new Date(time.getTime());
-    }
-
-    public Date getUpdateTime() {
-        return new Date(updateTime.getTime());
-    }
-
-    public void setUpdateTime(Date time) {
-        this.updateTime = new Date(time.getTime());
-    }
-
-    public String getCreatedByUserId() {
-        return createdByUserId;
-    }
-
-    public void setCreatedByUserId(String createdByUserId) {
-        this.createdByUserId = createdByUserId;
-    }
-
-    public String getUpdatedByUserId() {
-        return updatedByUserId;
-    }
-
-    public void setUpdatedByUserId(String updatedByUserId) {
-        this.updatedByUserId = updatedByUserId;
-    }
-
     @PrePersist
     public void prePersist() {
         if (getId() == null) {
             setId(Utils.uuidString());
         }
-
-        //TODO: need to get current user
-        //setCreatedBy(currentUser);
-        Date now = new Date();
-		setCreateTime(now);
-        setUpdateTime(now);
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        //TODO: need to get current user
-		//setUpdatedBy(currentUser);
-        setUpdateTime(new Date());
     }
 }

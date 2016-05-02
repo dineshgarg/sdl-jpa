@@ -1,6 +1,5 @@
 package com.sdl.odata.jpa;
 
-import com.sdl.odata.api.parser.TargetType;
 import com.sdl.odata.api.processor.query.JoinOperation;
 import com.sdl.odata.api.processor.query.QueryOperation;
 import com.sdl.odata.api.processor.query.SelectByKeyOperation;
@@ -10,7 +9,10 @@ import com.sdl.odata.api.service.ODataRequestContext;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -20,14 +22,14 @@ public class OdataJpaQueryBuilder {
 
     private final ODataRequestContext requestContext;
     private final QueryOperation queryOperation;
-	private final TargetType targetType;
     private final EntityManager em;
 
-    public OdataJpaQueryBuilder(ODataRequestContext requestContext, QueryOperation queryOperation,
-                                TargetType targetType, EntityManager em) {
+    private Root<?> selectRoot;
+    private Collection<Predicate> andPredicates;
+
+    public OdataJpaQueryBuilder(ODataRequestContext requestContext, QueryOperation queryOperation, EntityManager em) {
         this.requestContext = requestContext;
         this.queryOperation = queryOperation;
-        this.targetType = targetType;
         this.em = em;
     }
 
@@ -38,53 +40,65 @@ public class OdataJpaQueryBuilder {
     }
 
     public CriteriaQuery build() throws ClassNotFoundException, ODataJpaException {
+        andPredicates = new ArrayList<>();
+
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery cq = cb.createQuery();
         fromOperation(queryOperation, cb, cq);
+
+        if (selectRoot != null) {
+            cq.select(selectRoot);
+        }
+        cq.where(andPredicates.toArray(new Predicate[andPredicates.size()]));
+
         return cq;
     }
 
-    private void fromOperation(QueryOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
+    private Root<?> fromOperation(QueryOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
             throws ClassNotFoundException, ODataJpaException {
 
         if (operation instanceof SelectOperation) {
-            buildFromSelect((SelectOperation) operation, cq);
+            return buildFromSelect((SelectOperation) operation, cb, cq);
         } else if (operation instanceof SelectByKeyOperation) {
-            buildFromSelectByKey((SelectByKeyOperation) operation, cb, cq);
+            return buildFromSelectByKey((SelectByKeyOperation) operation, cb, cq);
         } else if (operation instanceof JoinOperation) {
-            buildFromJoin((JoinOperation) operation, cb, cq);
+            return buildFromJoin((JoinOperation) operation, cb, cq);
         }
+
+        throw new UnsupportedOperationException(operation.getClass().getSimpleName() + " is not supported.");
     }
 
-    private void buildFromJoin(JoinOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
+    private Root<?> buildFromJoin(JoinOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
             throws ODataJpaException, ClassNotFoundException {
 
-        fromOperation(operation.getRightSource(), cb, cq);
-        fromOperation(operation.getLeftSource(), cb, cq);
+        Root<?> rootR = fromOperation(operation.getRightSource(), cb, cq);
+        Root<?> rootL = fromOperation(operation.getLeftSource(), cb, cq);
+
+        andPredicates.add(cb.equal(rootL.get("id"), rootR.get("city").get("id")));
+        return rootL; // Not sure what to return here
     }
 
-    private void buildFromSelect(SelectOperation operation, CriteriaQuery cq)
+    private Root<?> buildFromSelect(SelectOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
             throws ClassNotFoundException, ODataJpaException {
 
-        if (cq.getSelection() == null) {
-            Root<?> root = cq.from(toJpa(operation.entitySetName()));
-            cq.select(root);
-        }
+        Root<?> from = cq.from(toJpa(operation.entitySetName()));
+        selectRoot = selectRoot == null ? from : selectRoot;
+        return from;
     }
 
-    private void buildFromSelectByKey(SelectByKeyOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
+    private Root<?> buildFromSelectByKey(SelectByKeyOperation operation, CriteriaBuilder cb, CriteriaQuery cq)
             throws ODataJpaException {
 
-        Root<?> root = cq.from(toJpa(operation.entitySetName()));
-        if (cq.getSelection() == null) {
-            cq.select(root);
-        }
+        Root<?> from = cq.from(toJpa(operation.entitySetName()));
+        selectRoot = selectRoot == null ? from : selectRoot;
 
-        // TODO: Need to find what is Id field for given EDM entity
-        // TODO: And what is ID field for JPA entity.
         // FIXME Hardcoded ID field names.
+        //       Need to find what is Id field for given EDM entity.
+        //       And which ID field correspond to JPA entity.
 
         Map<String, Object> keys = operation.getKeyAsJava();
-        cq.where(cb.equal(root.get("id"), keys.get("id")));
+        andPredicates.add(cb.equal(from.get("id"), keys.get("id")));
+
+        return from;
     }
 }

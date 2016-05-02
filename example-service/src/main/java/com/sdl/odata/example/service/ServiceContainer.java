@@ -48,11 +48,11 @@ public class ServiceContainer {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceContainer.class);
 
     public static void main(String[] args) {
-        LOG.info("Starting Example Service Application container");
+        LOG.info("Starting JPA Example Service Application container");
 
         SpringApplication springApplication = new SpringApplication(ServiceContainer.class);
         springApplication.run(args);
 
-        LOG.info("Example Service application container started");
+        LOG.info("JPA Example Service Application container started");
     }
 }

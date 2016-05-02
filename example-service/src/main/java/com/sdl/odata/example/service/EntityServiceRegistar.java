@@ -58,28 +58,44 @@ public class EntityServiceRegistar {
                 com.sdl.odata.example.edm.entities.Person.class
         ));
 
-        City c = new City();
-        c.setId("City-1");
-        c.setName("Redwood City");
-        c.setState("CA");
-        c.setZipCode("94063");
-        City savedCity = cityRepo.save(c);
+        City c1 = new City();
+        c1.setId("City-1");
+        c1.setName("Redwood City");
+        c1.setState("CA");
+        c1.setZipCode("94063");
 
-        Person p = new Person();
-        p.setId("Dinesh");
-        p.setFirstName("Dinesh");
-        p.setLastName("Garg");
-        p.setEmailId("dg@dg.com");
-        p.setCity(savedCity);
+        City c2 = new City();
+        c2.setId("City-2");
+        c2.setName("San Mateo");
+        c2.setState("CA");
+        c2.setZipCode("94001");
+
+        City savedCity1 = cityRepo.save(c1);
+        City savedCity2 = cityRepo.save(c2);
 
         Person p1 = new Person();
-        p1.setId("Oleg");
-        p1.setFirstName("Oleg");
-        p1.setLastName("Burykin");
-        p1.setEmailId("ob@ob.com");
-        p1.setCity(savedCity);
+        p1.setId("Dinesh");
+        p1.setFirstName("Dinesh");
+        p1.setLastName("Garg");
+        p1.setEmailId("dg@dg.com");
+        p1.setCity(savedCity1);
 
-        personRepo.save(p);
+        Person p2 = new Person();
+        p2.setId("Oleg");
+        p2.setFirstName("Oleg");
+        p2.setLastName("Burykin");
+        p2.setEmailId("ob@ob.com");
+        p2.setCity(savedCity1);
+
+        Person p3 = new Person();
+        p3.setId("Rohan");
+        p3.setFirstName("Rohan");
+        p3.setLastName("Arora");
+        p3.setEmailId("ra@ar.com");
+        p3.setCity(savedCity2);
+
         personRepo.save(p1);
+        personRepo.save(p2);
+        personRepo.save(p3);
     }
 }

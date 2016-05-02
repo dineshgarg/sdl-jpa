@@ -55,13 +55,14 @@ public class JpaStrategyBuilder {
 
         CriteriaQuery cq;
         try {
-            cq = new OdataJpaQueryBuilder(requestContext, queryOperation, targetType, em).build();
+            cq = new OdataJpaQueryBuilder(requestContext, queryOperation, em).build();
         } catch (ClassNotFoundException e) {
             LOG.error("Failed to create JPA query", e);
             throw new ODataDataSourceException("Failed to create JPA query", e);
         }
 
         Query query = em.createQuery(cq);
+        LOG.debug("JPA query generated: " + query.unwrap(org.hibernate.Query.class).getQueryString());
 
         final Class<?> edmEntityClass = EdmUtil.getEdmEntityClass(requestContext, targetType);
         final Class<?> jpaEntityClass = AnnotationBrowser.toJpa(edmEntityClass);
