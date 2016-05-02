@@ -2,7 +2,6 @@ package com.sdl.odata.jpa;
 
 import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.parser.TargetType;
-import com.sdl.odata.api.processor.datasource.ODataDataSourceException;
 import com.sdl.odata.api.processor.query.QueryOperation;
 import com.sdl.odata.api.processor.query.strategy.QueryOperationStrategy;
 import com.sdl.odata.api.service.ODataRequestContext;
@@ -17,11 +16,11 @@ import javax.persistence.criteria.CriteriaQuery;
  * Given Edm and Jpa entities, execute query on database
  * and provide QueryOperation for odata framework.
  */
-public class JpaStrategyBuilder {
+public class JpaStrategyBuilder implements IQueryStrategyBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(JpaStrategyBuilder.class);
 
-    private EntityManager em;
+    private final EntityManager em;
 
     private ODataRequestContext requestContext;
     private QueryOperation queryOperation;
@@ -50,6 +49,8 @@ public class JpaStrategyBuilder {
         return this;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
     public QueryOperationStrategy build() throws ODataException {
         LOG.debug("Building JPA query for odata request");
 
@@ -58,11 +59,14 @@ public class JpaStrategyBuilder {
             cq = new OdataJpaQueryBuilder(requestContext, queryOperation, em).build();
         } catch (ClassNotFoundException e) {
             LOG.error("Failed to create JPA query", e);
-            throw new ODataDataSourceException("Failed to create JPA query", e);
+            throw new ODataJpaException("Failed to create JPA query", e);
         }
 
         Query query = em.createQuery(cq);
-        LOG.debug("JPA query generated: " + query.unwrap(org.hibernate.Query.class).getQueryString());
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("JPA query generated: " + query.unwrap(org.hibernate.Query.class).getQueryString());
+        }
 
         final Class<?> edmEntityClass = EdmUtil.getEdmEntityClass(requestContext, targetType);
         final Class<?> jpaEntityClass = AnnotationBrowser.toJpa(edmEntityClass);

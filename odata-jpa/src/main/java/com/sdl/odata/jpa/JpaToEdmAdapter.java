@@ -1,18 +1,17 @@
 package com.sdl.odata.jpa;
 
+import com.sdl.odata.jpa.annotation.JPAField;
+import org.springframework.util.StringUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.util.StringUtils;
-
-import com.sdl.odata.jpa.annotation.JPAField;
-
 public class JpaToEdmAdapter {
 
-	private Class<?> jpaEntityClass;
-	private Class<?> edmEntityClass;
+	private final Class<?> jpaEntityClass;
+	private final Class<?> edmEntityClass;
 
 	public JpaToEdmAdapter(Class<?> jpaEntityClass, Class<?> edmEntityClass) {
 		this.jpaEntityClass = jpaEntityClass;
@@ -20,7 +19,7 @@ public class JpaToEdmAdapter {
 	}
 
 	public List<Object> toEdmEntities(List<?> jpaEntities) throws ODataJpaException {
-		List<Object> edmEntities = new ArrayList<Object>();
+		List<Object> edmEntities = new ArrayList<>();
 
 		for (Object jpaEntity : jpaEntities) {
 
@@ -44,7 +43,7 @@ public class JpaToEdmAdapter {
 	}
 
 	private void mapFieldValueToEdmEntity(Object jpaEntity, Object edmEntity, Field edmField) {
-		
+
 		try {
 			JPAField jpaFieldAnnotation = edmField.getAnnotation(JPAField.class);
 
@@ -81,22 +80,18 @@ public class JpaToEdmAdapter {
 
 					if (i == pathElements.length - 1) {
 
-						// last element type should match the
-						// edmField type.
+						// last element type should match the edmField type.
 						// TODO check with Oleg if we want to
-						// support different types in EDM
-						// versus JPA. In that case we would need to
-						// support type conversion.
+						// support different types in EDM versus JPA.
+                        // In that case we would need to support type conversion.
 
-						// here we will be returning a primitive
-						// value so we should
-						// do the check for boolean to determine the
-						// correct method name.
+						// here we will be returning a primitive value so we should
+						// do the check for boolean to determine the correct method name.
 						if (edmField.getType() == Boolean.class) {
 							getterMethodName = "is" + fieldName;
 						}
-
 					}
+
 					Method jpaMethod = currentClass.getMethod(getterMethodName);
 					value = jpaMethod.invoke(value);
 					currentClass = value.getClass();
@@ -107,16 +102,13 @@ public class JpaToEdmAdapter {
 				Method edmMethod = edmEntityClass.getMethod(setterMethodName, edmField.getType());
 				edmMethod.invoke(edmEntity, value);
 			}
-			
+
 		} catch (Exception e) {
 			// log a warning here that the field could not be resolved.
-			// not all fields will have getters. Example persons
-			// in City.
+			// not all fields will have getters.
+			// Example persons in City.
 			// TODO should we define another annotation to check
-			// if the attribute
-			// is mapped at all?
+			// if the attribute is mapped at all?
 		}
-
 	}
-
 }

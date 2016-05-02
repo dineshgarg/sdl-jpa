@@ -9,7 +9,6 @@ import java.lang.annotation.Annotation;
  */
 public class AnnotationBrowser {
 
-
     /**
      * For given EDM entity class, find corresponding JPA entity class.
      *

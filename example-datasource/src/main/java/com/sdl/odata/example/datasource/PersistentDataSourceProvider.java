@@ -59,7 +59,7 @@ public class PersistentDataSourceProvider implements DataSourceProvider {
 
 	@Override
     public boolean isSuitableFor(ODataRequestContext oDataRequestContext, String entityType) throws ODataDataSourceException {
-        return oDataRequestContext.getEntityDataModel().getType(entityType).getJavaType().equals(Person.class) ||
-                oDataRequestContext.getEntityDataModel().getType(entityType).getJavaType().equals(City.class);
+		Class<?> javaType = oDataRequestContext.getEntityDataModel().getType(entityType).getJavaType();
+		return javaType.equals(Person.class) || javaType.equals(City.class);
     }
 }
