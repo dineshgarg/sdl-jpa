@@ -15,9 +15,6 @@
  */
 package com.sdl.odata.example.persistent.entities;
 
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,20 +29,22 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+
 @Configuration
 @EnableJpaRepositories(basePackages="com.sdl.odata.example.persistent.entities")
 public class PersistentDataSourceConfiguration {
-	
+
 	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-			DataSource dataSource, JpaVendorAdapter jpaVendorAdapter) {
-		LocalContainerEntityManagerFactoryBean emfb =
-				new LocalContainerEntityManagerFactoryBean();
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource,
+                                                                       JpaVendorAdapter jpaVendorAdapter) {
+		LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
 		emfb.setDataSource(dataSource);
 		emfb.setJpaVendorAdapter(jpaVendorAdapter);
 		emfb.setPackagesToScan("com.sdl.odata.example.persistent.entities");
 		return emfb;
-	}	
+	}
 
 	@Bean
 	public JpaVendorAdapter jpaVendorAdapter() {
@@ -56,34 +55,26 @@ public class PersistentDataSourceConfiguration {
 		adapter.setDatabasePlatform("org.hibernate.dialect.MySQL5Dialect");
 		return adapter;
 	}
-	
+
 	@Bean
 	public DataSource embeddedDataSource() {
 		return new EmbeddedDatabaseBuilder()
 				.setType(EmbeddedDatabaseType.H2)
 				.build();
-		
-//		BasicDataSource ds = new BasicDataSource();
-//		ds.setDriverClassName("org.h2.Driver");
-//		ds.setUrl("jdbc:h2:mem:test_mem");
-//		ds.setInitialSize(5);
-//		ds.setMaxTotal(10);
-//		return ds;	
 	}
-	
-	  @Configuration
-	  @EnableTransactionManagement
-	  public static class TransactionConfig {
 
-	    @Autowired
-	    private EntityManagerFactory emf;
+    @Configuration
+    @EnableTransactionManagement
+    public static class TransactionConfig {
 
-	    @Bean
-	    public PlatformTransactionManager transactionManager() {
-	      JpaTransactionManager transactionManager = new JpaTransactionManager();
-	      transactionManager.setEntityManagerFactory(emf);
-	      return transactionManager;
-	    }    
-	  }
+        @Autowired
+        private EntityManagerFactory emf;
 
+        @Bean
+        public PlatformTransactionManager transactionManager() {
+            JpaTransactionManager transactionManager = new JpaTransactionManager();
+            transactionManager.setEntityManagerFactory(emf);
+            return transactionManager;
+        }
+    }
 }

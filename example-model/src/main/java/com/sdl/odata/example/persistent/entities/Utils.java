@@ -19,15 +19,13 @@ import java.util.UUID;
 
 /**
  * Created by hrawat on 8/24/15.
- * 
- * TODO: Delete this class and see if we can share this class through a 
- * common artifact with Identity service. 
+ *
+ * TODO: Delete this class and see if we can share this class through a
+ * common artifact with Identity service.
  */
 public class Utils {
 
-
-    static final int LONG_ENC_STR_LEN = 11;
-    public static final int UUID_ENC_STR_LEN = LONG_ENC_STR_LEN*2;
+    private static final int LONG_ENC_STR_LEN = 11;
 
     private static final Character[] printableChars =  {
             '0' , '1' , '2' , '3' , '4' , '5' ,
@@ -49,32 +47,25 @@ public class Utils {
         return uuidToString(uuid);
     }
 
-
-
     public static String uuidToString(UUID uuid) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         long mostSigBits = uuid.getMostSignificantBits();
         long leastSigBits = uuid.getLeastSignificantBits();
-        buffer.append(longToString(mostSigBits));
-        buffer.append(longToString(leastSigBits));
-        return buffer.toString();
+        sb.append(longToString(mostSigBits));
+        sb.append(longToString(leastSigBits));
+        return sb.toString();
     }
 
-     static String longToString(long value) {
-        StringBuffer buf = new StringBuffer();
-
-
+     private static String longToString(long value) {
+         StringBuilder sb = new StringBuilder();
          for (int i=0; i < LONG_ENC_STR_LEN; i++) {
              int remainder = (int) (value % printableChars.length);
-             buf.insert(0, printableChars[Math.abs(remainder)]);
+             sb.insert(0, printableChars[Math.abs(remainder)]);
              value = value / printableChars.length;
              if ((i ==0) && (value < 0)) {
                 value = value*2;
              }
-
          }
-
-
-        return buf.toString();
-    }
+         return sb.toString();
+     }
 }

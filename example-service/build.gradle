@@ -1,13 +1,13 @@
 description = 'Service'
+
 dependencies {
   compile project(':example-datasource')
   compile group: 'com.sdl', name: 'odata_service', version:'2.0.5'
   compile group: 'com.sdl', name: 'odata_common', version:'2.0.5'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version:'1.3.2.RELEASE'
+  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version:'1.3.4.RELEASE'
   compile group: 'com.google.guava', name: 'guava', version:'18.0'
   compile group: 'com.h2database', name: 'h2', version:'1.4.182'
 }
-
 
 apply plugin: 'application'
 mainClassName = "com.sdl.odata.example.service.ServiceContainer"

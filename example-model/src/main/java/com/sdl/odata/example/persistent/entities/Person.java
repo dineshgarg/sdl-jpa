@@ -23,9 +23,6 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Person extends AbstractEntity {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Column(length=1024)
