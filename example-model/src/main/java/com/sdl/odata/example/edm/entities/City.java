@@ -15,34 +15,34 @@
  */
 package com.sdl.odata.example.edm.entities;
 
-import java.util.List;
-
 import com.sdl.odata.api.edm.annotations.EdmEntity;
 import com.sdl.odata.api.edm.annotations.EdmEntitySet;
 import com.sdl.odata.api.edm.annotations.EdmNavigationProperty;
 import com.sdl.odata.api.edm.annotations.EdmProperty;
 import com.sdl.odata.jpa.annotation.JPAEntity;
 
+import java.util.List;
+
 @EdmEntity(namespace = "SDL.OData.Example", key = "id", containerName = "SDLExample")
 @EdmEntitySet(name="Cities")
 @JPAEntity(clazz = com.sdl.odata.example.persistent.entities.City.class)
 public class City {
-	
+
 	@EdmProperty(name = "id", nullable = false)
     private String id;
 
 	@EdmProperty(name = "name", nullable = false)
     private String name;
-	
+
 	@EdmProperty(name = "zipCode", nullable = false)
     private String zipCode;
-	
+
 	@EdmProperty(name = "state", nullable = false)
     private String state;
-	
+
 	@EdmNavigationProperty(containsTarget = true)
 	private List<Person> persons;
-	
+
 	public String getId() {
 		return id;
 	}
@@ -82,5 +82,4 @@ public class City {
 	public void setPersons(List<Person> persons) {
 		this.persons = persons;
 	}
-
 }

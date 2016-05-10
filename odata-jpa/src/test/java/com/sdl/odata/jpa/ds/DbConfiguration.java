@@ -1,6 +1,7 @@
 package com.sdl.odata.jpa.ds;
 
 import com.sdl.odata.api.ODataException;
+import com.sdl.odata.jpa.model.jpa.City;
 import com.sdl.odata.jpa.model.jpa.Person;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,50 +17,76 @@ public class DbConfiguration {
     @PersistenceUnit
     private EntityManagerFactory emf;
 
+    private static City redwoodCity;
+    private static City sanMateo;
+
+    private static Person dinesh;
+    private static Person oleg;
+    private static Person rohan;
+
     @PostConstruct
     @Transactional
     public void registerEntities() throws ODataException {
-//        City c1 = new City();
-//        c1.setId("City-1");
-//        c1.setName("Redwood City");
-//        c1.setState("CA");
-//        c1.setZipCode("94063");
-//
-//        City c2 = new City();
-//        c2.setId("City-2");
-//        c2.setName("San Mateo");
-//        c2.setState("CA");
-//        c2.setZipCode("94001");
-//
-//        City savedCity1 = cityRepo.save(c1);
-//        City savedCity2 = cityRepo.save(c2);
+        redwoodCity = new City();
+        redwoodCity.setId("City-1");
+        redwoodCity.setName("Redwood City");
+        redwoodCity.setState("CA");
+        redwoodCity.setZipCode("94063");
 
-        Person p1 = new Person();
-        p1.setId("Dinesh");
-        p1.setFirstName("Dinesh");
-        p1.setLastName("Garg");
-//        p1.setEmailId("dg@dg.com");
-//        p1.setCity(savedCity1);
+        sanMateo = new City();
+        sanMateo.setId("City-2");
+        sanMateo.setName("San Mateo");
+        sanMateo.setState("CA");
+        sanMateo.setZipCode("94001");
 
-        Person p2 = new Person();
-        p2.setId("Oleg");
-        p2.setFirstName("Oleg");
-        p2.setLastName("Burykin");
-//        p2.setEmailId("ob@ob.com");
-//        p2.setCity(savedCity1);
+        dinesh = new Person();
+        dinesh.setId("Dinesh");
+        dinesh.setFirstName("Dinesh");
+        dinesh.setLastName("Garg");
+        dinesh.setCity(redwoodCity);
 
-        Person p3 = new Person();
-        p3.setId("Rohan");
-        p3.setFirstName("Rohan");
-        p3.setLastName("Arora");
-//        p3.setEmailId("ra@ar.com");
-//        p3.setCity(savedCity2);
+        oleg = new Person();
+        oleg.setId("Oleg");
+        oleg.setFirstName("Oleg");
+        oleg.setLastName("Burykin");
+        oleg.setCity(redwoodCity);
+
+        rohan = new Person();
+        rohan.setId("Rohan");
+        rohan.setFirstName("Rohan");
+        rohan.setLastName("Arora");
+        rohan.setCity(sanMateo);
 
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        em.persist(p1);
-        em.persist(p2);
-        em.persist(p3);
+
+        em.persist(redwoodCity);
+        em.persist(sanMateo);
+
+        em.persist(dinesh);
+        em.persist(oleg);
+        em.persist(rohan);
+
         em.getTransaction().commit();
+    }
+
+    public static City getRedwoodCity() {
+        return redwoodCity;
+    }
+
+    public static City getSanMateo() {
+        return sanMateo;
+    }
+
+    public static Person getDinesh() {
+        return dinesh;
+    }
+
+    public static Person getOleg() {
+        return oleg;
+    }
+
+    public static Person getRohan() {
+        return rohan;
     }
 }
