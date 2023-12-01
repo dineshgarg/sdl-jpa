@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_dineshgarg_sdl_jpa_1701418769986-pr-trigger-input-set
+  identifier: Build_dineshgarg_sdl_jpa_1701418769986prtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_dineshgarg_sdl_jpa_1701418769986
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
