@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_dineshgarg_sdl_jpa_1701760427244-push-trigger-input-set
+  identifier: Build_dineshgarg_sdl_jpa_1701760427244pushtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_dineshgarg_sdl_jpa_1701760427244
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
